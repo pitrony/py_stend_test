@@ -1,0 +1,1 @@
+{'leveling': (False, False, True), 'floor_approach': (False, False, False), 'return_back': (True, False, False), 'card_revision': (True, False, False), 'shaft_revision': (True, False, False), 'normal': (False, True, False), 'high': (True, True, False), 'max_speed': (True, True, False), 'reading_shaft': (False, True, False)}

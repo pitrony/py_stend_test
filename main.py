@@ -15,8 +15,10 @@ class MainApp(QtWidgets.QMainWindow):
         self.config_window = QtWidgets.QWidget()
         self.config_ui = Ui_Form_conf_speed()
         self.config_ui.setupUi(self.config_window)
-
+       # self.config_ui.setupUi(self.main.MainApp.update_main_window(self, data1=255, data2=255))
+        #self.main_window.pushButton_start.clicked.connect(self.update_main_window(255, 255))
         self.main_window.pushButton_conf.clicked.connect(self.show_config)
+        #self.main_window.actionconfig.connect(self.show_config)
         self.config_ui.pushButton_cancel.clicked.connect(self.show_main)
         self.config_ui.pushButtonOk.clicked.connect(self.save_settings)
 
@@ -30,19 +32,19 @@ class MainApp(QtWidgets.QMainWindow):
 
     def save_settings(self):
         settings = {
-            'leveling': (self.config_ui.radioButton_rf_l.isChecked(), self.config_ui.radioButton_rh_l.isChecked(), self.config_ui.radioButton_ry_l.isChecked(),),
-            'floor_approach': (self.config_ui.radioButton_rf_f.isChecked(), self.config_ui.radioButton_rh_f.isChecked(), self.config_ui.radioButton_ry_f.isChecked(),),
-            'return_back': (self.config_ui.radioButton_rf_ret.isChecked(), self.config_ui.radioButton_rh_ret.isChecked(), self.config_ui.radioButton_ry_ret.isChecked(),),
-            'card_revision': (self.config_ui.radioButton_rf_c.isChecked(), self.config_ui.radioButton_rh_c.isChecked(),
+            'leveling': (self.config_ui.radioButton_rh_l.isChecked(), self.config_ui.radioButton_rf_l.isChecked(), self.config_ui.radioButton_ry_l.isChecked(),),
+            'floor_approach': (self.config_ui.radioButton_rh_f.isChecked(), self.config_ui.radioButton_rf_f.isChecked(), self.config_ui.radioButton_ry_f.isChecked(),),
+            'return_back': (self.config_ui.radioButton_rh_ret.isChecked(), self.config_ui.radioButton_rf_ret.isChecked(), self.config_ui.radioButton_ry_ret.isChecked(),),
+            'card_revision': (self.config_ui.radioButton_rh_c.isChecked(), self.config_ui.radioButton_rf_c.isChecked(),
                               self.config_ui.radioButton_ry_c.isChecked(),),
-            'shaft_revision': (self.config_ui.radioButton_rf_sh.isChecked(), self.config_ui.radioButton_rh_sh.isChecked(),
+            'shaft_revision': (self.config_ui.radioButton_rh_sh.isChecked(), self.config_ui.radioButton_rf_sh.isChecked(),
                               self.config_ui.radioButton_ry_sh.isChecked(),),
-            'normal': (self.config_ui.radioButton_rf_n.isChecked(), self.config_ui.radioButton_rh_n.isChecked(),
+            'normal': (self.config_ui.radioButton_rh_n.isChecked(), self.config_ui.radioButton_rf_n.isChecked(),
                        self.config_ui.radioButton_ry_n.isChecked(),),
-            'high': (self.config_ui.radioButton_rf_h.isChecked(), self.config_ui.radioButton_rh_h.isChecked(),
+            'high': (self.config_ui.radioButton_rh_h.isChecked(), self.config_ui.radioButton_rf_h.isChecked(),
                      self.config_ui.radioButton_ry_h.isChecked(),),
-            'max_speed': (self.config_ui.radioButton_rf_m.isChecked(), self.config_ui.radioButton_rh_m.isChecked(), self.config_ui.radioButton_ry_m.isChecked(),),
-            'reading_shaft': (self.config_ui.radioButton_rf_read.isChecked(), self.config_ui.radioButton_rh_read.isChecked(), self.config_ui.radioButton_ry_read.isChecked(),),
+            'max_speed': (self.config_ui.radioButton_rh_m.isChecked(), self.config_ui.radioButton_rf_m.isChecked(), self.config_ui.radioButton_ry_m.isChecked(),),
+            'reading_shaft': (self.config_ui.radioButton_rh_read.isChecked(), self.config_ui.radioButton_rf_read.isChecked(), self.config_ui.radioButton_ry_read.isChecked(),),
         }
         with open('config_settings.txt', 'w') as file:
             file.write(str(settings))
