@@ -24,11 +24,13 @@ class MainApp(QtWidgets.QMainWindow):
 
     def show_config(self):
         self.hide()
+        #self.read_settings()
         self.config_window.show()
 
     def show_main(self):
         self.config_window.hide()
         self.show()
+        self.update_main_window(255, 255)
 
     def save_settings(self):
         settings = {
@@ -50,15 +52,22 @@ class MainApp(QtWidgets.QMainWindow):
             file.write(str(settings))
         self.show_main()
 
+    def read_settings(self):
+        with open('config_settings.txt', 'r') as file:
+            settings = file.read()
+            print(settings)
+
     def update_main_window(self, data1, data2):
         # Decode data1 for speed and PTC
+        print(data1, '\n', data2)
         speed = data1 & 0b111
+        print(speed, '\n')
         ptc = (data1 >> 3) & 0b1
         frn = (data1 >> 4) & 0b1
         ru1 = (data1 >> 5) & 0b1
         ru2 = (data1 >> 6) & 0b1
         rgk = (data1 >> 7) & 0b1
-
+        print(ptc, '\n', rgk, '\n')
         # Update main window checkboxes
         self.main_window.radioButton_ptc.setChecked(bool(ptc))
         self.main_window.radioButton_frn.setChecked(bool(frn))
@@ -68,11 +77,11 @@ class MainApp(QtWidgets.QMainWindow):
 
         # Handle speed logic reading config_settings.txt after than set speed label !
         if speed == 1:
-            self.main_window.label_speed.setText(self,'Speed 1 rh=0 rf=0 ry=1')
+            self.main_window.label_speed.setText('Speed 1 rh=0 rf=0 ry=1')
         elif speed==7:
-            self.main_window.label_speed.setText(self, 'Speed 7 rh=1 rf=1 ry=1')
+            self.main_window.label_speed.setText('Speed 7 rh=1 rf=1 ry=1')
         elif speed==0:
-            self.main_window.label_speed.setText(self, 'Speed 0 rh=0 rf=0 ry=0')
+            self.main_window.label_speed.setText('Speed 0 rh=0 rf=0 ry=0')
          #   self.config_ui.radioButton_rh_l.setChecked(True)
           #  self.config_ui.radioButton_rf_f.setChecked(False)
            # self.config_ui.radioButton_ry_ret.setChecked(False)
@@ -100,16 +109,21 @@ class MainApp(QtWidgets.QMainWindow):
         bot = (data2 >> 7) & 0b1
 
         # Update main window status
+        self.main_window.radioButton_500.setChecked(bool(up))
+        self.main_window.radioButton_501.setChecked(bool(down))
         self.main_window.radioButton_opcl.setChecked(bool(door))
         self.main_window.radioButton_ml1.setChecked(bool(ml1))
         self.main_window.radioButton_ml2.setChecked(bool(ml2))
         self.main_window.radioButton_ins.setChecked(bool(insp))
+        self.main_window.radioButton_817.setChecked(bool(bot))
+        self.main_window.radioButton_818.setChecked(bool(top))
+        #if(top==1 and bot==1):
+          #  self.main_window.listView_alarms.addAction('Eroor: 817 and 818 both off ')
 
-        if not top:
-            self.main_window.radioButton_817.setChecked(True)
-        if not bot:
-            self.main_window.radioButton_818.setChecked(True)
+#res = [sub for sub in test_list if any(ele for ele in sub)]
 
+# printing result
+#print("Extracted Rows : " + str(res))
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
