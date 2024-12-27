@@ -1,17 +1,25 @@
 from PyQt5 import QtWidgets
 from for_rasb_stend import Ui_MainWindow
 from form_conf_speed import Ui_Form_conf_speed
-import sys
+import sys, ast, time
+import smbus
+import paho.mqtt.publish as publish
 
-data1=255
-data2=255
+#bus = smbus.SMBus(1)
+# bWrite=0x00
+# mask=0xFF
+adr_2 = 0x24
+adr_1 = 0x20
+i = 0
+data1=250
+data2=0
 
 class MainApp(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainApp, self).__init__()
         self.main_window = Ui_MainWindow()
         self.main_window.setupUi(self)
-
+        self.mylist = self.main_window.listView_alarms()
         self.config_window = QtWidgets.QWidget()
         self.config_ui = Ui_Form_conf_speed()
         self.config_ui.setupUi(self.config_window)
@@ -24,13 +32,13 @@ class MainApp(QtWidgets.QMainWindow):
 
     def show_config(self):
         self.hide()
-        #self.read_settings()
+        self.load_settings()
         self.config_window.show()
 
     def show_main(self):
         self.config_window.hide()
         self.show()
-        self.update_main_window(255, 255)
+        self.update_main_window(data1, data2)
 
     def save_settings(self):
         settings = {
@@ -52,22 +60,72 @@ class MainApp(QtWidgets.QMainWindow):
             file.write(str(settings))
         self.show_main()
 
-    def read_settings(self):
-        with open('config_settings.txt', 'r') as file:
-            settings = file.read()
-            print(settings)
+    def load_settings(self):
+        try:
+            with open('config_settings.txt', 'r') as file:
+                data = file.read()
+                settings = ast.literal_eval(data)  # Преобразуем строку обратно в словарь
+
+            # Восстанавливаем состояние радиокнопок на основе сохраненных значений
+            self.config_ui.radioButton_rh_l.setChecked(settings.get('leveling', ())[0])
+            self.config_ui.radioButton_rf_l.setChecked(settings.get('leveling', ())[1])
+            self.config_ui.radioButton_ry_l.setChecked(settings.get('leveling', ())[2])
+
+            self.config_ui.radioButton_rh_f.setChecked(settings.get('floor_approach', ())[0])
+            self.config_ui.radioButton_rf_f.setChecked(settings.get('floor_approach', ())[1])
+            self.config_ui.radioButton_ry_f.setChecked(settings.get('floor_approach', ())[2])
+
+            self.config_ui.radioButton_rh_ret.setChecked(settings.get('return_back', ())[0])
+            self.config_ui.radioButton_rf_ret.setChecked(settings.get('return_back', ())[1])
+            self.config_ui.radioButton_ry_ret.setChecked(settings.get('return_back', ())[2])
+
+            self.config_ui.radioButton_rh_c.setChecked(settings.get('card_revision', (False, False, False))[0])
+            self.config_ui.radioButton_rf_c.setChecked(settings.get('card_revision', (False, False, False))[1])
+            self.config_ui.radioButton_ry_c.setChecked(settings.get('card_revision', (False, False, False))[2])
+
+            self.config_ui.radioButton_rh_sh.setChecked(settings.get('shaft_revision', (False, False, False))[0])
+            self.config_ui.radioButton_rf_sh.setChecked(settings.get('shaft_revision', (False, False, False))[1])
+            self.config_ui.radioButton_ry_sh.setChecked(settings.get('shaft_revision', (False, False, False))[2])
+
+            self.config_ui.radioButton_rh_n.setChecked(settings.get('normal', (False, False, False))[0])
+            self.config_ui.radioButton_rf_n.setChecked(settings.get('normal', (False, False, False))[1])
+            self.config_ui.radioButton_ry_n.setChecked(settings.get('normal', (False, False, False))[2])
+
+            self.config_ui.radioButton_rh_h.setChecked(settings.get('high', (False, False, False))[0])
+            self.config_ui.radioButton_rf_h.setChecked(settings.get('high', (False, False, False))[1])
+            self.config_ui.radioButton_ry_h.setChecked(settings.get('high', (False, False, False))[2])
+
+            self.config_ui.radioButton_rh_m.setChecked(settings.get('max_speed', (False, False, False))[0])
+            self.config_ui.radioButton_rf_m.setChecked(settings.get('max_speed', (False, False, False))[1])
+            self.config_ui.radioButton_ry_m.setChecked(settings.get('max_speed', (False, False, False))[2])
+
+            self.config_ui.radioButton_rh_read.setChecked(settings.get('reading_shaft', (False, False, False))[0])
+            self.config_ui.radioButton_rf_read.setChecked(settings.get('reading_shaft', (False, False, False))[1])
+            self.config_ui.radioButton_ry_read.setChecked(settings.get('reading_shaft', (False, False, False))[2])
+
+        except FileNotFoundError:
+            print("Configuration file not found, using default settings.")
+            # Если файл не найден, используем стандартные значения
+            pass
+
+    #def read_settings(self):
+     #   with open('config_settings.txt', 'r') as file:
+      #      settings = file.read()
+       #     print(settings)
+
+    #def list_adding(self, alarms):
+
+        #self.main_window.listView_alarms.addItem(alarms)
 
     def update_main_window(self, data1, data2):
         # Decode data1 for speed and PTC
-        print(data1, '\n', data2)
         speed = data1 & 0b111
-        print(speed, '\n')
         ptc = (data1 >> 3) & 0b1
         frn = (data1 >> 4) & 0b1
         ru1 = (data1 >> 5) & 0b1
         ru2 = (data1 >> 6) & 0b1
         rgk = (data1 >> 7) & 0b1
-        print(ptc, '\n', rgk, '\n')
+
         # Update main window checkboxes
         self.main_window.radioButton_ptc.setChecked(bool(ptc))
         self.main_window.radioButton_frn.setChecked(bool(frn))
@@ -76,10 +134,20 @@ class MainApp(QtWidgets.QMainWindow):
         self.main_window.radioButton_rgk.setChecked(bool(rgk))
 
         # Handle speed logic reading config_settings.txt after than set speed label !
-        if speed == 1:
-            self.main_window.label_speed.setText('Speed 1 rh=0 rf=0 ry=1')
-        elif speed==7:
+        if speed==7:
             self.main_window.label_speed.setText('Speed 7 rh=1 rf=1 ry=1')
+        elif speed==6:
+            self.main_window.label_speed.setText('Speed 6 rh=1 rf=1 ry=0')
+        elif speed==5:
+            self.main_window.label_speed.setText('Speed 5 rh=1 rf=0 ry=1')
+        elif speed==4:
+            self.main_window.label_speed.setText('Speed 4 rh=1 rf=0 ry=0')
+        elif speed==3:
+            self.main_window.label_speed.setText('Speed 3 rh=0 rf=1 ry=1')
+        elif speed==2:
+            self.main_window.label_speed.setText('Speed 2 rh=0 rf=1 ry=0')
+        elif speed == 1:
+            self.main_window.label_speed.setText('Speed 1 rh=0 rf=0 ry=1')
         elif speed==0:
             self.main_window.label_speed.setText('Speed 0 rh=0 rf=0 ry=0')
          #   self.config_ui.radioButton_rh_l.setChecked(True)
@@ -117,11 +185,20 @@ class MainApp(QtWidgets.QMainWindow):
         self.main_window.radioButton_ins.setChecked(bool(insp))
         self.main_window.radioButton_817.setChecked(bool(bot))
         self.main_window.radioButton_818.setChecked(bool(top))
-        #if(top==1 and bot==1):
-          #  self.main_window.listView_alarms.addAction('Eroor: 817 and 818 both off ')
+        if(top==1 and bot==1):
+           self.list_adding(str("Eror: 817 and 818 both off "))
 
 #res = [sub for sub in test_list if any(ele for ele in sub)]
-
+ #   def read_raspb(self):
+  #      bus.write_byte(adr_2, 0xFF)
+   #     bus.write_byte(adr_1, 0xFF)
+    #    while (i<10):
+     #       data1 = bus.read_binary(adr_1)
+      #      data1 = bus.read_binary(adr_2)
+       #     msgs = [{'topic': "/orange/data1", 'payload': data1}, ("/orange/data2", data2, 0, False)]
+        #    publish.multiple(msgs, hostname="mqtt.eclipseprojects.io")
+         #   sleep(1)
+#         i=0
 # printing result
 #print("Extracted Rows : " + str(res))
 
