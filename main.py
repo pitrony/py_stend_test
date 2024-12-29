@@ -9,7 +9,7 @@ import sys, ast
 from functools import partial
 from PyQt5.QtCore import QTimer
 #import smbus
-#import paho.mqtt.publish as publish
+import paho.mqtt.publish as publish
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
 
@@ -19,9 +19,9 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 #adr_2 = 0x24
 #adr_1 = 0x20
 #i = 0
-data1=250
-data2=0
-alarms=str('')
+data1 = 255
+data2 = 255
+alarms = str('')
 
 class MainApp(QtWidgets.QMainWindow):
     def __init__(self):
@@ -44,15 +44,9 @@ class MainApp(QtWidgets.QMainWindow):
         #list alarms
         self.model = QStandardItemModel()
         self.main_window.listView_alarms.setModel(self.model)
-        #self.model = QStandardItemModel()
-        #self.main_window.listView_alarms.setModel(self.model)
-        #self.main_window.listView_alarms.clear(self.model)
-        #self.main_window.listView_alarms.addItems(alarms)
 
 
     def init_timer(self): #timer
-        #self.timer = QTimer(self)
-        #self.timer.timeout.connect(lambda: self.update_main_window(data1, data2, alarms))
         self.timer = QTimer(self)
         self.timer.timeout.connect(lambda: self.update_main_window(data1, data2, alarms))
         #self.timer.timeout.connect(self.update_main_window(data1, data2, alarms))
@@ -158,6 +152,8 @@ class MainApp(QtWidgets.QMainWindow):
 
     def update_main_window(self, data1, data2, alarms):
         # Decode data1 for speed and PTC
+        #self.read_raspb()
+
         speed = data1 & 0b111
         ptc = (data1 >> 3) & 0b1
         frn = (data1 >> 4) & 0b1
@@ -188,23 +184,13 @@ class MainApp(QtWidgets.QMainWindow):
             self.main_window.label_speed.setText('Speed 2 rh=0 rf=1 ry=0')
         elif speed == 1:
             self.main_window.label_speed.setText('Speed 1 rh=0 rf=0 ry=1')
-        elif speed==0:
+        elif speed == 0:
             self.main_window.label_speed.setText('Speed 0 rh=0 rf=0 ry=0')
-         #   self.config_ui.radioButton_rh_l.setChecked(True)
-          #  self.config_ui.radioButton_rf_f.setChecked(False)
-           # self.config_ui.radioButton_ry_ret.setChecked(False)
+
         #elif speed == 2:
          #   self.config_ui.radioButton_rh_l.setChecked(False)
           #  self.config_ui.radioButton_rf_f.setChecked(True)
            # self.config_ui.radioButton_ry_ret.setChecked(False)
-        #elif speed == 3:
-         #   self.config_ui.radioButton_rh_l.setChecked(True)
-          #  self.config_ui.radioButton_rf_f.setChecked(True)
-           # self.config_ui.radioButton_ry_ret.setChecked(False)
-        #elif speed == 4:
-         #   self.config_ui.radioButton_rh_l.setChecked(False)
-          #  self.config_ui.radioButton_rf_f.setChecked(False)
-           # self.config_ui.radioButton_ry_ret.setChecked(True)
 
         # Decode data2 for movement and door state
         up = data2 & 0b1
@@ -225,10 +211,25 @@ class MainApp(QtWidgets.QMainWindow):
         self.main_window.radioButton_ins.setChecked(bool(insp))
         self.main_window.radioButton_817.setChecked(bool(bot))
         self.main_window.radioButton_818.setChecked(bool(top))
-        if(top==0 and bot==0):
-           alarms=str("Eror: 817 and 818 both off ")
-           self.list_adding(alarms)
 
+        if(top==0 and bot==0):
+           alarms=str("Error: 817 and 818 both off ")
+           self.list_adding(alarms)
+        if (down == 1 and up == 1):
+            alarms = str("Error: UP and Down both on ")
+            self.list_adding(alarms)
+        if (ru1 == 1 and ru2 == 1):
+            alarms = str("Error:  up direct and down direct both on ")
+            self.list_adding(alarms)
+        if (ml1 == 0 and ml2 == 0 and door == 1):
+            alarms = str("Error:  try open not in floor ")
+            self.list_adding(alarms)
+        if ((ru1 == 1 or ru2 == 1) and rgk == 1):
+            alarms = str("Error:  contactor not on in move ")
+            self.list_adding(alarms)
+        if (ptc == 0):
+            alarms = str('Error: Overheat motor')
+            self.list_adding(alarms)
 
 #res = [sub for sub in test_list if any(ele for ele in sub)]
  #   def read_raspb(self):
