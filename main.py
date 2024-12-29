@@ -1,34 +1,54 @@
 from PyQt5 import QtWidgets
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtWidgets import QWidget, QListWidget, QListView, QApplication
+from PyQt5.uic.Compiler.qtproxies import QtGui, QtCore
+from PyQt5.QtCore import QStringListModel
 from for_rasb_stend import Ui_MainWindow
 from form_conf_speed import Ui_Form_conf_speed
-import sys, ast, time
+import sys, ast
+from PyQt5.QtCore import QTimer
 import smbus
 import paho.mqtt.publish as publish
 
 #bus = smbus.SMBus(1)
 # bWrite=0x00
 # mask=0xFF
-adr_2 = 0x24
-adr_1 = 0x20
-i = 0
+#adr_2 = 0x24
+#adr_1 = 0x20
+#i = 0
 data1=250
 data2=0
+alarms=str('')
 
 class MainApp(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainApp, self).__init__()
         self.main_window = Ui_MainWindow()
         self.main_window.setupUi(self)
-        self.mylist = self.main_window.listView_alarms()
+        #self.mylist = self.main_window.listView_alarms
+        #self.model=QtCore.QStringListModel(self)
         self.config_window = QtWidgets.QWidget()
         self.config_ui = Ui_Form_conf_speed()
         self.config_ui.setupUi(self.config_window)
-       # self.config_ui.setupUi(self.main.MainApp.update_main_window(self, data1=255, data2=255))
-        #self.main_window.pushButton_start.clicked.connect(self.update_main_window(255, 255))
         self.main_window.pushButton_conf.clicked.connect(self.show_config)
         #self.main_window.actionconfig.connect(self.show_config)
         self.config_ui.pushButton_cancel.clicked.connect(self.show_main)
         self.config_ui.pushButtonOk.clicked.connect(self.save_settings)
+        self.init_list_view()
+        self.init_timer()
+
+    def init_list_view(self):
+        #list alarms
+        self.model = QStandardItemModel()
+        self.main_window.listView_alarms.setModel(self.model)
+        #self.main_window.listView_alarms.clear(self.model)
+        #self.main_window.listView_alarms.addItems(alarms)
+
+
+    def init_timer(self): #timer
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_main_window(data1, data2, alarms))
+        self.timer.start(500)  # 500 milliseconds = 0.5 seconds
 
     def show_config(self):
         self.hide()
@@ -38,7 +58,7 @@ class MainApp(QtWidgets.QMainWindow):
     def show_main(self):
         self.config_window.hide()
         self.show()
-        self.update_main_window(data1, data2)
+        self.update_main_window(data1, data2, alarms)
 
     def save_settings(self):
         settings = {
@@ -112,12 +132,20 @@ class MainApp(QtWidgets.QMainWindow):
      #   with open('config_settings.txt', 'r') as file:
       #      settings = file.read()
        #     print(settings)
+    def list_adding(self, alarms):
+        if(alarms != ''):
+            item = QStandardItem(alarms)
+            self.model.appendRow(item)
 
-    #def list_adding(self, alarms):
+    #def list_adding(self, ):
+     #   item = QStandardItem(alarms)
+      #  self.model.appendRow(item)
+       # self.mylist.setModel(self.model)
+        #self.main_window.listView_alarms.rowsInserted(alarms)
 
         #self.main_window.listView_alarms.addItem(alarms)
 
-    def update_main_window(self, data1, data2):
+    def update_main_window(self, data1, data2, alarms):
         # Decode data1 for speed and PTC
         speed = data1 & 0b111
         ptc = (data1 >> 3) & 0b1
@@ -132,7 +160,8 @@ class MainApp(QtWidgets.QMainWindow):
         self.main_window.radioButton_817.setChecked(bool(ru1))
         self.main_window.radioButton_818.setChecked(bool(ru2))
         self.main_window.radioButton_rgk.setChecked(bool(rgk))
-
+        self.list_adding(alarms)
+        self.main_window.listView_alarms(alarms)
         # Handle speed logic reading config_settings.txt after than set speed label !
         if speed==7:
             self.main_window.label_speed.setText('Speed 7 rh=1 rf=1 ry=1')
@@ -185,8 +214,9 @@ class MainApp(QtWidgets.QMainWindow):
         self.main_window.radioButton_ins.setChecked(bool(insp))
         self.main_window.radioButton_817.setChecked(bool(bot))
         self.main_window.radioButton_818.setChecked(bool(top))
-        if(top==1 and bot==1):
-           self.list_adding(str("Eror: 817 and 818 both off "))
+        if(top==0 and bot==0):
+           alarms=str("Eror: 817 and 818 both off ")
+           self.list_adding(alarms)
 
 #res = [sub for sub in test_list if any(ele for ele in sub)]
  #   def read_raspb(self):
