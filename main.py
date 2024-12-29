@@ -10,7 +10,8 @@ from functools import partial
 from PyQt5.QtCore import QTimer
 #import smbus
 import paho.mqtt.publish as publish
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap
+
 
 
 #bus = smbus.SMBus(1)
@@ -37,8 +38,14 @@ class MainApp(QtWidgets.QMainWindow):
         #self.main_window.actionconfig.connect(self.show_config)
         self.config_ui.pushButton_cancel.clicked.connect(self.show_main)
         self.config_ui.pushButtonOk.clicked.connect(self.save_settings)
+        #self.main_window.pushButton_start.Checked.connect(self.show_main)
+        #self.main_window.pushButton_stop.Checked.connect(self.save_alarms)
+        self.main_window.label_updw.setScaledContents(True)
+        self.main_window.label_opcl.setScaledContents(True)
+        self.main_window.label_updw.setPixmap(QPixmap('move_stop.png'))
         self.init_list_view()
         self.init_timer()
+
 
     def init_list_view(self):
         #list alarms
@@ -51,24 +58,26 @@ class MainApp(QtWidgets.QMainWindow):
         self.timer.timeout.connect(lambda: self.update_main_window(data1, data2, alarms))
         #self.timer.timeout.connect(self.update_main_window(data1, data2, alarms))
         self.timer.start(5000)  # 500 milliseconds = 0.5 seconds
-
-    def show_config(self):
-        self.hide()
-        self.load_settings()
-        self.config_window.show()
-
     def list_adding(self, alarms):
 
         if (alarms != ''):
             item = QStandardItem(alarms)
             self.model.appendRow(item)
-
+    def show_config(self):
+        self.hide()
+        self.load_settings()
+        self.config_window.show()
 
     def show_main(self):
         self.config_window.hide()
         self.show()
-        self.update_main_window(data1, data2, alarms)
+        if(self.main_window.pushButton_start.isChecked()):
+            self.update_main_window(data1, data2, alarms)
 
+    #def save_alarms(self):
+     #   alarms_mess = self.model
+      #  with open('alarms_mess.txt', 'w') as file:
+       #     file.write(str(alarms_mess))
     def save_settings(self):
         settings = {
             'leveling': (self.config_ui.radioButton_rh_l.isChecked(), self.config_ui.radioButton_rf_l.isChecked(), self.config_ui.radioButton_ry_l.isChecked(),),
@@ -137,18 +146,7 @@ class MainApp(QtWidgets.QMainWindow):
             # Если файл не найден, используем стандартные значения
             pass
 
-    #def read_settings(self):
-     #   with open('config_settings.txt', 'r') as file:
-      #      settings = file.read()
-       #     print(settings)
 
-    #def list_adding(self, ):
-     #   item = QStandardItem(alarms)
-      #  self.model.appendRow(item)
-       # self.mylist.setModel(self.model)
-        #self.main_window.listView_alarms.rowsInserted(alarms)
-
-        #self.main_window.listView_alarms.addItem(alarms)
 
     def update_main_window(self, data1, data2, alarms):
         # Decode data1 for speed and PTC
@@ -167,7 +165,7 @@ class MainApp(QtWidgets.QMainWindow):
         self.main_window.radioButton_817.setChecked(bool(ru1))
         self.main_window.radioButton_818.setChecked(bool(ru2))
         self.main_window.radioButton_rgk.setChecked(bool(rgk))
-        self.list_adding(alarms)
+        #self.list_adding(alarms)
        # self.main_window.listView_alarms(alarms)
         # Handle speed logic reading config_settings.txt after than set speed label !
         if speed==7:
@@ -201,8 +199,28 @@ class MainApp(QtWidgets.QMainWindow):
         door = (data2 >> 5) & 0b1
         top = (data2 >> 6) & 0b1
         bot = (data2 >> 7) & 0b1
-
+        # pixmap_up = QPixmap('move_up.png')
+        # pixmap_dw = QPixmap('move_dwn.png')
+        # pixmap_op_d = QPixmap('open_door.png')
+        # pixmap_cl_d = QPixmap('close_door.png')
+        # pixmap_st = QPixmap('move_stop.svg')
         # Update main window status
+        if(door == 1):
+            self.main_window.label_opcl.setPixmap(QPixmap('close_door.png'))
+            #self.main_window.label_opcl.setPixmap(QPixmap('1_d_cl_64.png'))
+        else:
+            self.main_window.label_opcl.setPixmap(QPixmap('open_door.png'))
+
+        if (ru1 == 1 and ru2 !=1):
+            self.main_window.label_updw.setPixmap(QPixmap('move_up.png'))
+
+        if(ru2 == 1 and ru1 !=1):
+            self.main_window.label_updw.setPixmap(QPixmap('move_dwn.png'))
+
+        if ((ru2 == 1 and ru1 == 1) or (ru2 == 0 and ru1 == 0)):
+            self.main_window.label_updw.setPixmap(QPixmap('move_stop.png'))
+
+
         self.main_window.radioButton_500.setChecked(bool(up))
         self.main_window.radioButton_501.setChecked(bool(down))
         self.main_window.radioButton_opcl.setChecked(bool(door))
