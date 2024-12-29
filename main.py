@@ -6,9 +6,12 @@ from PyQt5.QtCore import QStringListModel
 from for_rasb_stend import Ui_MainWindow
 from form_conf_speed import Ui_Form_conf_speed
 import sys, ast
+from functools import partial
 from PyQt5.QtCore import QTimer
-import smbus
-import paho.mqtt.publish as publish
+#import smbus
+#import paho.mqtt.publish as publish
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+
 
 #bus = smbus.SMBus(1)
 # bWrite=0x00
@@ -41,19 +44,31 @@ class MainApp(QtWidgets.QMainWindow):
         #list alarms
         self.model = QStandardItemModel()
         self.main_window.listView_alarms.setModel(self.model)
+        #self.model = QStandardItemModel()
+        #self.main_window.listView_alarms.setModel(self.model)
         #self.main_window.listView_alarms.clear(self.model)
         #self.main_window.listView_alarms.addItems(alarms)
 
 
     def init_timer(self): #timer
+        #self.timer = QTimer(self)
+        #self.timer.timeout.connect(lambda: self.update_main_window(data1, data2, alarms))
         self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_main_window(data1, data2, alarms))
-        self.timer.start(500)  # 500 milliseconds = 0.5 seconds
+        self.timer.timeout.connect(lambda: self.update_main_window(data1, data2, alarms))
+        #self.timer.timeout.connect(self.update_main_window(data1, data2, alarms))
+        self.timer.start(5000)  # 500 milliseconds = 0.5 seconds
 
     def show_config(self):
         self.hide()
         self.load_settings()
         self.config_window.show()
+
+    def list_adding(self, alarms):
+
+        if (alarms != ''):
+            item = QStandardItem(alarms)
+            self.model.appendRow(item)
+
 
     def show_main(self):
         self.config_window.hide()
@@ -132,10 +147,6 @@ class MainApp(QtWidgets.QMainWindow):
      #   with open('config_settings.txt', 'r') as file:
       #      settings = file.read()
        #     print(settings)
-    def list_adding(self, alarms):
-        if(alarms != ''):
-            item = QStandardItem(alarms)
-            self.model.appendRow(item)
 
     #def list_adding(self, ):
      #   item = QStandardItem(alarms)
@@ -161,7 +172,7 @@ class MainApp(QtWidgets.QMainWindow):
         self.main_window.radioButton_818.setChecked(bool(ru2))
         self.main_window.radioButton_rgk.setChecked(bool(rgk))
         self.list_adding(alarms)
-        self.main_window.listView_alarms(alarms)
+       # self.main_window.listView_alarms(alarms)
         # Handle speed logic reading config_settings.txt after than set speed label !
         if speed==7:
             self.main_window.label_speed.setText('Speed 7 rh=1 rf=1 ry=1')
@@ -217,6 +228,7 @@ class MainApp(QtWidgets.QMainWindow):
         if(top==0 and bot==0):
            alarms=str("Eror: 817 and 818 both off ")
            self.list_adding(alarms)
+
 
 #res = [sub for sub in test_list if any(ele for ele in sub)]
  #   def read_raspb(self):
