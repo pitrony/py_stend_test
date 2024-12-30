@@ -319,13 +319,18 @@ class Ui_MainWindow(object):
         self.actionconfig.setObjectName("actionconfig")
         self.actionexit = QtWidgets.QAction(MainWindow)
         self.actionexit.setObjectName("actionexit")
+        self.actionStart = QtWidgets.QAction(MainWindow)
+        self.actionStart.setObjectName("actionStart")
+        self.actionStop = QtWidgets.QAction(MainWindow)
+        self.actionStop.setObjectName("actionStop")
         self.menumenu.addAction(self.actionconfig)
+        self.menumenu.addAction(self.actionStart)
+        self.menumenu.addAction(self.actionStop)
         self.menumenu.addAction(self.actionexit)
         self.menubar.addAction(self.menumenu.menuAction())
 
         self.retranslateUi(MainWindow)
         self.pushButton_exit.clicked.connect(MainWindow.close) # type: ignore
-        self.actionconfig.triggered.connect(MainWindow.hide) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -353,5 +358,7 @@ class Ui_MainWindow(object):
         self.pushButton_exit.setText(_translate("MainWindow", "Exit"))
         self.pushButton_conf.setText(_translate("MainWindow", "Configure"))
         self.menumenu.setTitle(_translate("MainWindow", "menu"))
-        self.actionconfig.setText(_translate("MainWindow", "config"))
-        self.actionexit.setText(_translate("MainWindow", "exit"))
+        self.actionconfig.setText(_translate("MainWindow", "Config"))
+        self.actionexit.setText(_translate("MainWindow", "Exit"))
+        self.actionStart.setText(_translate("MainWindow", "Start"))
+        self.actionStop.setText(_translate("MainWindow", "Stop"))
