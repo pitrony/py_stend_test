@@ -1,0 +1,2 @@
+Error 1: 817 and 818 both off 
+Error 3:  up direct and down direct both on 

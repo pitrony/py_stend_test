@@ -2,12 +2,15 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QWidget, QListWidget, QListView, QApplication
 from PyQt5.uic.Compiler.qtproxies import QtGui, QtCore
-from PyQt5.QtCore import QStringListModel
+#from PyQt5 import QtCore.QStringListModel, QtCore.QPropertyAnimation
+from PySide6.QtCore import QPropertyAnimation
+#from PyQt5 import QtCore.QPropertyAnimation
+from PyQt5.QtCore import QPropertyAnimation, QPoint
 from for_rasb_stend import Ui_MainWindow
 from form_conf_speed import Ui_Form_conf_speed
 import sys, ast
 from functools import partial
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer, QPropertyAnimation
 #import smbus
 import paho.mqtt.publish as publish
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap
@@ -35,17 +38,101 @@ class MainApp(QtWidgets.QMainWindow):
         self.config_ui = Ui_Form_conf_speed()
         self.config_ui.setupUi(self.config_window)
         self.main_window.pushButton_conf.clicked.connect(self.show_config)
-        #self.main_window.actionconfig.connect(self.show_config)
+        self.main_window.actionconfig.triggered.connect(self.show_config)
+        self.main_window.actionStart.triggered.connect(self.start_transmitting)
+        self.main_window.actionStop.triggered.connect(self.stop_transmitting)
+        self.main_window.actionexit.triggered.connect(self.main_window.pushButton_exit.clicked)
         self.config_ui.pushButton_cancel.clicked.connect(self.show_main)
         self.config_ui.pushButtonOk.clicked.connect(self.save_settings)
-        #self.main_window.pushButton_start.Checked.connect(self.show_main)
-        #self.main_window.pushButton_stop.Checked.connect(self.save_alarms)
         self.main_window.label_updw.setScaledContents(True)
         self.main_window.label_opcl.setScaledContents(True)
         self.main_window.label_updw.setPixmap(QPixmap('move_stop.png'))
-        self.init_list_view()
+        self.main_window.label_move.setPixmap(QPixmap('lift_cab_64.png'))
+        self.main_window.radioButton_rgk.setEnabled(False)
+        self.main_window.radioButton_fri.setEnabled(False)
         self.init_timer()
+        self.init_connections()
+        self.init_list_view()
 
+    def init_connections(self):
+        self.main_window.pushButton_start.clicked.connect(self.start_transmitting)
+        self.main_window.pushButton_stop.clicked.connect(self.stop_transmitting)
+        self.main_window.radioButton_501.toggled.connect(self.move_lift_up)
+        self.main_window.radioButton_500.toggled.connect(self.move_lift_down)
+
+    def move_lift_up(self, checked):
+        if checked:
+            if(self.main_window.radioButton_500.isChecked() != True):# Lift should move up when radioButton_501 is checked
+                self.animate_lift_up()
+
+    def move_lift_down(self, checked):
+        if checked:
+            if(self.main_window.radioButton_501.isChecked() != True):
+                self.animate_lift_down()
+
+
+    def animate_lift_up(self):
+        self.animation = QPropertyAnimation(self.main_window.label_move, b"pos")
+        self.animation.setDuration(2000)  # 1 second duration
+        self.animation.setStartValue(QPoint(100, 190))
+        self.animation.setEndValue(QPoint(100, 10))
+        self.animation.start()
+        # Create animation for smooth movement
+        #animation = QtCore.QPropertyAnimation(self.main_window.label_move, b"geometry")
+        #animation.setDuration(1000)  # 1 second duration
+        #current_geometry = self.main_window.label_move.geometry()
+
+        # Target position - Adjust Y coordinate to move up
+        #target_y = max(0, current_geometry.y() - 50)  # Move 50px up, adjust as needed
+
+        # Set start and end geometry
+        #animation.setStartValue(current_geometry)
+        #animation.setEndValue(QtCore.QRect(current_geometry.x(), target_y, current_geometry.width(), current_geometry.height()))
+        #animation.start()
+
+    def animate_lift_down(self):
+        #self.animation = QtCore.QPropertyAnimation(self.main_window.label_move, b"geometry")
+        self.animation = QPropertyAnimation(self.main_window.label_move, b"pos")
+        self.animation.setDuration(2000)  # 1 second duration
+        #current_geometry = self.main_window.label_move.geometry()
+
+        # Target position - Adjust Y coordinate to move down
+        #max_y = self.main_window.frame_for_mov.geometry().height() - current_geometry.height()
+        #target_y = min(max_y, current_geometry.y() + 50)  # Move 50px down, adjust as needed
+        #print(target_y)
+        # Set start and end geometry
+        self.animation.setStartValue(QPoint(100, 190))
+        self.animation.setEndValue(QPoint(100, 400))
+
+        #self.animation.setEndValue(QtCore.QRect(current_geometry.x(), target_y, current_geometry.width(), current_geometry.height()))
+        self.animation.start()
+
+    def start_saving_alarms(self):
+        self.save_alarms_to_file()
+        self.timer.start(5000)  # Save every 5000 ms (5 seconds)
+
+
+    def stop_saving_alarms(self):
+        self.timer.stop()
+
+
+    def save_alarms_to_file(self):
+        # Get model from listView_alarms
+        model = self.main_window.listView_alarms.model()
+        if model:
+            with open("alarms_log.txt", "w") as file:
+                for row in range(model.rowCount()):
+                    item = model.data(model.index(row, 0))
+                    file.write(item + "\n")
+    def start_transmitting(self):
+        # Start timer to update main window periodically
+        self.timer.start(5000)  # 500 ms interval
+        self.main_window.pushButton_stop.setChecked(False)
+
+    def stop_transmitting(self):
+        # Stop timer to halt updates to the main window and alarms
+        self.timer.stop()
+        self.main_window.pushButton_start.setChecked(False)
 
     def init_list_view(self):
         #list alarms
@@ -55,14 +142,17 @@ class MainApp(QtWidgets.QMainWindow):
 
     def init_timer(self): #timer
         self.timer = QTimer(self)
+        self.timer.timeout.connect(self.save_alarms_to_file)
+
+        #self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(lambda: self.update_main_window(data1, data2, alarms))
         #self.timer.timeout.connect(self.update_main_window(data1, data2, alarms))
-        self.timer.start(5000)  # 500 milliseconds = 0.5 seconds
+        #self.timer.start(5000)  # 500 milliseconds = 0.5 seconds
     def list_adding(self, alarms):
-
         if (alarms != ''):
             item = QStandardItem(alarms)
             self.model.appendRow(item)
+
     def show_config(self):
         self.hide()
         self.load_settings()
@@ -74,10 +164,7 @@ class MainApp(QtWidgets.QMainWindow):
         if(self.main_window.pushButton_start.isChecked()):
             self.update_main_window(data1, data2, alarms)
 
-    #def save_alarms(self):
-     #   alarms_mess = self.model
-      #  with open('alarms_mess.txt', 'w') as file:
-       #     file.write(str(alarms_mess))
+
     def save_settings(self):
         settings = {
             'leveling': (self.config_ui.radioButton_rh_l.isChecked(), self.config_ui.radioButton_rf_l.isChecked(), self.config_ui.radioButton_ry_l.isChecked(),),
@@ -157,14 +244,14 @@ class MainApp(QtWidgets.QMainWindow):
         frn = (data1 >> 4) & 0b1
         ru1 = (data1 >> 5) & 0b1
         ru2 = (data1 >> 6) & 0b1
-        rgk = (data1 >> 7) & 0b1
+        krc = (data1 >> 7) & 0b1
 
         # Update main window checkboxes
         self.main_window.radioButton_ptc.setChecked(bool(ptc))
         self.main_window.radioButton_frn.setChecked(bool(frn))
-        self.main_window.radioButton_817.setChecked(bool(ru1))
-        self.main_window.radioButton_818.setChecked(bool(ru2))
-        self.main_window.radioButton_rgk.setChecked(bool(rgk))
+        self.main_window.radioButton_ru1.setChecked(bool(ru1))
+        self.main_window.radioButton_ru2.setChecked(bool(ru2))
+        self.main_window.radioButton_krc.setChecked(bool(krc))
         #self.list_adding(alarms)
        # self.main_window.listView_alarms(alarms)
         # Handle speed logic reading config_settings.txt after than set speed label !
@@ -193,18 +280,13 @@ class MainApp(QtWidgets.QMainWindow):
         # Decode data2 for movement and door state
         up = data2 & 0b1
         down = (data2 >> 1) & 0b1
-        insp = (data2 >> 2) & 0b1
+        ins = (data2 >> 2) & 0b1
         ml1 = (data2 >> 3) & 0b1
         ml2 = (data2 >> 4) & 0b1
         door = (data2 >> 5) & 0b1
         top = (data2 >> 6) & 0b1
         bot = (data2 >> 7) & 0b1
-        # pixmap_up = QPixmap('move_up.png')
-        # pixmap_dw = QPixmap('move_dwn.png')
-        # pixmap_op_d = QPixmap('open_door.png')
-        # pixmap_cl_d = QPixmap('close_door.png')
-        # pixmap_st = QPixmap('move_stop.svg')
-        # Update main window status
+
         if(door == 1):
             self.main_window.label_opcl.setPixmap(QPixmap('close_door.png'))
             #self.main_window.label_opcl.setPixmap(QPixmap('1_d_cl_64.png'))
@@ -226,27 +308,27 @@ class MainApp(QtWidgets.QMainWindow):
         self.main_window.radioButton_opcl.setChecked(bool(door))
         self.main_window.radioButton_ml1.setChecked(bool(ml1))
         self.main_window.radioButton_ml2.setChecked(bool(ml2))
-        self.main_window.radioButton_ins.setChecked(bool(insp))
+        self.main_window.radioButton_ins.setChecked(bool(ins))
         self.main_window.radioButton_817.setChecked(bool(bot))
         self.main_window.radioButton_818.setChecked(bool(top))
 
         if(top==0 and bot==0):
-           alarms=str("Error: 817 and 818 both off ")
+           alarms=str("Error 1: 817 and 818 both off ")
            self.list_adding(alarms)
         if (down == 1 and up == 1):
-            alarms = str("Error: UP and Down both on ")
+            alarms = str("Error 2: UP and Down both on ")
             self.list_adding(alarms)
         if (ru1 == 1 and ru2 == 1):
-            alarms = str("Error:  up direct and down direct both on ")
+            alarms = str("Error 3:  up direct and down direct both on ")
             self.list_adding(alarms)
         if (ml1 == 0 and ml2 == 0 and door == 1):
-            alarms = str("Error:  try open not in floor ")
+            alarms = str("Error 4:  try open not in floor ")
             self.list_adding(alarms)
-        if ((ru1 == 1 or ru2 == 1) and rgk == 1):
-            alarms = str("Error:  contactor not on in move ")
+        if ((ru1 == 1 or ru2 == 1) and krc == 0):
+            alarms = str("Error 5:  contactor not on in move ")
             self.list_adding(alarms)
         if (ptc == 0):
-            alarms = str('Error: Overheat motor')
+            alarms = str('Error 6: Overheat motor')
             self.list_adding(alarms)
 
 #res = [sub for sub in test_list if any(ele for ele in sub)]
