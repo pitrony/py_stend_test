@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1011</width>
-    <height>720</height>
+    <width>1066</width>
+    <height>784</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -44,48 +44,6 @@
      </font>
     </property>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="6" column="0">
-      <widget class="QRadioButton" name="radioButton_500">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>14</pointsize>
-         <weight>75</weight>
-         <italic>true</italic>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string> 500</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QRadioButton" name="radioButton_818">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>14</pointsize>
-         <weight>75</weight>
-         <italic>true</italic>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string> 818</string>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="0">
       <widget class="QRadioButton" name="radioButton_ml1">
        <property name="sizePolicy">
@@ -104,6 +62,9 @@
        </property>
        <property name="text">
         <string>ML1</string>
+       </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -126,10 +87,13 @@
        <property name="text">
         <string> 817</string>
        </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QRadioButton" name="radioButton_ml2">
+     <item row="6" column="0">
+      <widget class="QRadioButton" name="radioButton_500">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -145,12 +109,15 @@
         </font>
        </property>
        <property name="text">
-        <string> ML2</string>
+        <string> 500</string>
+       </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
-     <item row="5" column="0">
-      <widget class="QRadioButton" name="radioButton_ptc">
+     <item row="1" column="0">
+      <widget class="QRadioButton" name="radioButton_818">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -166,7 +133,10 @@
         </font>
        </property>
        <property name="text">
-        <string> PTC</string>
+        <string> 818</string>
+       </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -189,6 +159,57 @@
        <property name="text">
         <string> RGK</string>
        </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QRadioButton" name="radioButton_ptc">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string> PTC</string>
+       </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QRadioButton" name="radioButton_ml2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string> ML2</string>
+       </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item row="7" column="0">
@@ -209,6 +230,9 @@
        </property>
        <property name="text">
         <string> 501</string>
+       </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -257,6 +281,9 @@
        <property name="text">
         <string> INS</string>
        </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item row="1" column="0">
@@ -277,6 +304,9 @@
        </property>
        <property name="text">
         <string> FRN</string>
+       </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -299,6 +329,9 @@
        <property name="text">
         <string> FRI</string>
        </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item row="3" column="0">
@@ -319,6 +352,9 @@
        </property>
        <property name="text">
         <string> OP /CL</string>
+       </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -341,6 +377,9 @@
        <property name="text">
         <string>KRC</string>
        </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
     </layout>
@@ -348,9 +387,9 @@
    <widget class="QLabel" name="label_speed">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>20</y>
-      <width>151</width>
+      <x>180</x>
+      <y>-10</y>
+      <width>461</width>
       <height>91</height>
      </rect>
     </property>
@@ -375,10 +414,10 @@
    <widget class="QLabel" name="label_alkarm">
     <property name="geometry">
      <rect>
-      <x>357</x>
-      <y>20</y>
+      <x>350</x>
+      <y>100</y>
       <width>131</width>
-      <height>121</height>
+      <height>61</height>
      </rect>
     </property>
     <property name="font">
@@ -396,11 +435,17 @@
    <widget class="QListView" name="listView_alarms">
     <property name="geometry">
      <rect>
-      <x>340</x>
-      <y>160</y>
-      <width>256</width>
-      <height>192</height>
+      <x>330</x>
+      <y>170</y>
+      <width>331</width>
+      <height>311</height>
      </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
     <property name="font">
      <font>
@@ -411,20 +456,35 @@
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">background:rgb(255, 85, 127)</string>
+     <string notr="true">background:rgb(255, 170, 127)</string>
+    </property>
+    <property name="movement">
+     <enum>QListView::Free</enum>
+    </property>
+    <property name="resizeMode">
+     <enum>QListView::Fixed</enum>
+    </property>
+    <property name="modelColumn">
+     <number>0</number>
+    </property>
+    <property name="uniformItemSizes">
+     <bool>true</bool>
+    </property>
+    <property name="itemAlignment">
+     <set>Qt::AlignLeading</set>
     </property>
    </widget>
    <widget class="QFrame" name="frame_for_mov">
     <property name="geometry">
      <rect>
-      <x>660</x>
-      <y>30</y>
-      <width>261</width>
-      <height>421</height>
+      <x>680</x>
+      <y>0</y>
+      <width>256</width>
+      <height>480</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background:rgb(255, 255, 255)</string>
+     <string notr="true">background:rgb(255, 170, 127)</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -432,14 +492,30 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
+    <widget class="QLabel" name="label_move">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>208</y>
+       <width>64</width>
+       <height>64</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>../PycharmProjects/py_rasp_test_stend/lift_cab_64.png</pixmap>
+     </property>
+    </widget>
    </widget>
    <widget class="QLabel" name="label_updw">
     <property name="geometry">
      <rect>
       <x>670</x>
       <y>490</y>
-      <width>81</width>
-      <height>161</height>
+      <width>128</width>
+      <height>128</height>
      </rect>
     </property>
     <property name="text">
@@ -449,10 +525,10 @@
    <widget class="QLabel" name="label_opcl">
     <property name="geometry">
      <rect>
-      <x>790</x>
+      <x>830</x>
       <y>490</y>
-      <width>71</width>
-      <height>161</height>
+      <width>128</width>
+      <height>128</height>
      </rect>
     </property>
     <property name="text">
@@ -463,52 +539,58 @@
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>630</y>
+      <y>670</y>
       <width>90</width>
       <height>28</height>
      </rect>
     </property>
     <property name="text">
-     <string>Start</string>
+     <string>&amp;Start</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_stop">
     <property name="geometry">
      <rect>
       <x>160</x>
-      <y>630</y>
+      <y>670</y>
       <width>90</width>
       <height>28</height>
      </rect>
     </property>
     <property name="text">
-     <string>Stop</string>
+     <string>S&amp;top</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_exit">
     <property name="geometry">
      <rect>
-      <x>880</x>
-      <y>630</y>
+      <x>860</x>
+      <y>660</y>
       <width>90</width>
       <height>28</height>
      </rect>
     </property>
     <property name="text">
-     <string>Exit</string>
+     <string>&amp;Exit</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_conf">
     <property name="geometry">
      <rect>
       <x>290</x>
-      <y>630</y>
+      <y>670</y>
       <width>90</width>
       <height>28</height>
      </rect>
     </property>
     <property name="text">
-     <string>Configure</string>
+     <string>&amp;Configure</string>
     </property>
    </widget>
   </widget>
@@ -517,7 +599,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1011</width>
+     <width>1066</width>
      <height>22</height>
     </rect>
    </property>
@@ -526,6 +608,8 @@
      <string>menu</string>
     </property>
     <addaction name="actionconfig"/>
+    <addaction name="actionStart"/>
+    <addaction name="actionStop"/>
     <addaction name="actionexit"/>
    </widget>
    <addaction name="menumenu"/>
@@ -533,12 +617,22 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionconfig">
    <property name="text">
-    <string>config</string>
+    <string>&amp;Config</string>
    </property>
   </action>
   <action name="actionexit">
    <property name="text">
-    <string>exit</string>
+    <string>&amp;Exit</string>
+   </property>
+  </action>
+  <action name="actionStart">
+   <property name="text">
+    <string>&amp;Start</string>
+   </property>
+  </action>
+  <action name="actionStop">
+   <property name="text">
+    <string>S&amp;top</string>
    </property>
   </action>
  </widget>
@@ -553,22 +647,6 @@
     <hint type="sourcelabel">
      <x>924</x>
      <y>665</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>505</x>
-     <y>359</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionconfig</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>hide()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>505</x>
