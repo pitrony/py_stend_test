@@ -3,28 +3,30 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QWidget, QListWidget, QListView, QApplication
 from PyQt5.uic.Compiler.qtproxies import QtGui, QtCore
 #from PyQt5 import QtCore.QStringListModel, QtCore.QPropertyAnimation
-from PySide6.QtCore import QPropertyAnimation
+#from PySide6.QtCore import QPropertyAnimation
 #from PyQt5 import QtCore.QPropertyAnimation
 from PyQt5.QtCore import QPropertyAnimation, QPoint
 from for_rasb_stend import Ui_MainWindow
 from form_conf_speed import Ui_Form_conf_speed
-import sys, ast
+import sys, ast, time
 from functools import partial
 from PyQt5.QtCore import QTimer, QPropertyAnimation
-#import smbus
+import smbus
 import paho.mqtt.publish as publish
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap
 
 
 
-#bus = smbus.SMBus(1)
+bus = smbus.SMBus(1)
 # bWrite=0x00
-# mask=0xFF
-#adr_2 = 0x24
-#adr_1 = 0x20
-#i = 0
+mask=0xFF
+adr_3 = 0x22
+adr_2 = 0x24
+adr_1 = 0x20
+i = 0
 data1 = 255
 data2 = 255
+data3 = 255
 alarms = str('')
 
 class MainApp(QtWidgets.QMainWindow):
@@ -48,8 +50,8 @@ class MainApp(QtWidgets.QMainWindow):
         self.main_window.label_opcl.setScaledContents(True)
         self.main_window.label_updw.setPixmap(QPixmap('move_stop.png'))
         self.main_window.label_move.setPixmap(QPixmap('lift_cab_64.png'))
-        self.main_window.radioButton_rgk.setEnabled(False)
-        self.main_window.radioButton_fri.setEnabled(False)
+        #self.main_window.radioButton_rgk.setEnabled(False)
+        #self.main_window.radioButton_fri.setEnabled(False)
         self.init_timer()
         self.init_connections()
         self.init_list_view()
@@ -70,7 +72,6 @@ class MainApp(QtWidgets.QMainWindow):
             if(self.main_window.radioButton_501.isChecked() != True):
                 self.animate_lift_down()
 
-
     def animate_lift_up(self):
         self.animation = QPropertyAnimation(self.main_window.label_move, b"pos")
         self.animation.setDuration(2000)  # 1 second duration
@@ -81,10 +82,8 @@ class MainApp(QtWidgets.QMainWindow):
         #animation = QtCore.QPropertyAnimation(self.main_window.label_move, b"geometry")
         #animation.setDuration(1000)  # 1 second duration
         #current_geometry = self.main_window.label_move.geometry()
-
         # Target position - Adjust Y coordinate to move up
         #target_y = max(0, current_geometry.y() - 50)  # Move 50px up, adjust as needed
-
         # Set start and end geometry
         #animation.setStartValue(current_geometry)
         #animation.setEndValue(QtCore.QRect(current_geometry.x(), target_y, current_geometry.width(), current_geometry.height()))
@@ -95,7 +94,6 @@ class MainApp(QtWidgets.QMainWindow):
         self.animation = QPropertyAnimation(self.main_window.label_move, b"pos")
         self.animation.setDuration(2000)  # 1 second duration
         #current_geometry = self.main_window.label_move.geometry()
-
         # Target position - Adjust Y coordinate to move down
         #max_y = self.main_window.frame_for_mov.geometry().height() - current_geometry.height()
         #target_y = min(max_y, current_geometry.y() + 50)  # Move 50px down, adjust as needed
@@ -103,7 +101,6 @@ class MainApp(QtWidgets.QMainWindow):
         # Set start and end geometry
         self.animation.setStartValue(QPoint(100, 190))
         self.animation.setEndValue(QPoint(100, 400))
-
         #self.animation.setEndValue(QtCore.QRect(current_geometry.x(), target_y, current_geometry.width(), current_geometry.height()))
         self.animation.start()
 
@@ -111,10 +108,8 @@ class MainApp(QtWidgets.QMainWindow):
         self.save_alarms_to_file()
         self.timer.start(5000)  # Save every 5000 ms (5 seconds)
 
-
     def stop_saving_alarms(self):
         self.timer.stop()
-
 
     def save_alarms_to_file(self):
         # Get model from listView_alarms
@@ -240,11 +235,11 @@ class MainApp(QtWidgets.QMainWindow):
         #self.read_raspb()
 
         speed = data1 & 0b111
-        ptc = (data1 >> 3) & 0b1
-        frn = (data1 >> 4) & 0b1
-        ru1 = (data1 >> 5) & 0b1
-        ru2 = (data1 >> 6) & 0b1
-        krc = (data1 >> 7) & 0b1
+        ru1= (data1 >> 3) & 0b1
+        ru2 = (data1 >> 4) & 0b1
+        krc= (data1 >> 5) & 0b1
+        frn= (data1 >> 6) & 0b1
+        ptc  = (data1 >> 7) & 0b1
 
         # Update main window checkboxes
         self.main_window.radioButton_ptc.setChecked(bool(ptc))
@@ -278,9 +273,9 @@ class MainApp(QtWidgets.QMainWindow):
            # self.config_ui.radioButton_ry_ret.setChecked(False)
 
         # Decode data2 for movement and door state
-        up = data2 & 0b1
-        down = (data2 >> 1) & 0b1
-        ins = (data2 >> 2) & 0b1
+        ins = data2 & 0b1
+        up = (data2 >> 1) & 0b1
+        down= (data2 >> 2) & 0b1
         ml1 = (data2 >> 3) & 0b1
         ml2 = (data2 >> 4) & 0b1
         door = (data2 >> 5) & 0b1
@@ -330,18 +325,29 @@ class MainApp(QtWidgets.QMainWindow):
         if (ptc == 0):
             alarms = str('Error 6: Overheat motor')
             self.list_adding(alarms)
+        rgk = data3 & 0b1
+        fri = (data3 >> 1) & 0b1
+        ppp = (data3 >> 2) & 0b1
+        safe = (data3 >> 3) & 0b1
+        d_sh = (data3 >> 4) & 0b1
+        d_cab = (data3 >> 5) & 0b1
+        light = (data3 >> 6) & 0b1
+        rez1 = (data3 >> 7) & 0b1
 
 #res = [sub for sub in test_list if any(ele for ele in sub)]
- #   def read_raspb(self):
-  #      bus.write_byte(adr_2, 0xFF)
-   #     bus.write_byte(adr_1, 0xFF)
-    #    while (i<10):
-     #       data1 = bus.read_binary(adr_1)
-      #      data1 = bus.read_binary(adr_2)
-       #     msgs = [{'topic': "/orange/data1", 'payload': data1}, ("/orange/data2", data2, 0, False)]
-        #    publish.multiple(msgs, hostname="mqtt.eclipseprojects.io")
-         #   sleep(1)
-#         i=0
+    def read_raspb(self):
+        bus.write_byte(adr_2, 0xFF)
+        bus.write_byte(adr_1, 0xFF)
+        bus.write_byte(adr_3, 0xFF)
+        while (i<10):
+            data1 = bus.read_binary(adr_1)
+            data2 = bus.read_binary(adr_2)
+            data3 = bus.read_binary(adr_3)
+            msgs = [{'topic': "/orange/data1", 'payload': data1}, ("/orange/data2", data2, 0, False), ("/orange/data3", data3, 0, False)]
+            publish.multiple(msgs, hostname="mqtt.eclipseprojects.io")
+            time.sleep(1)
+            i = i+1
+        i = 0
 # printing result
 #print("Extracted Rows : " + str(res))
 
