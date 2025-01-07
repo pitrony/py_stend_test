@@ -157,7 +157,7 @@ class MainApp(QtWidgets.QMainWindow):
         self.config_window.hide()
         self.show()
         if(self.main_window.pushButton_start.isChecked()):
-            #data1, data2, data3 = self.read_raspb()
+            self.read_raspb()
             self.update_main_window(data1, data2, data3, alarms)
 
 
@@ -232,7 +232,9 @@ class MainApp(QtWidgets.QMainWindow):
 
 
     def update_main_window(self, data1, data2, data3, alarms):
-        # Decode data1 for speed and PTC
+        data1, data2, data3 = self.read_raspb()
+        #print(data1, ' ', data2, ' ', data3, ' \n')
+        # Decode data1 for speed and other
         speed = data1 & 0b111
         ru1= (data1 >> 3) & 0b1
         ru2 = (data1 >> 4) & 0b1
@@ -334,11 +336,11 @@ class MainApp(QtWidgets.QMainWindow):
         self.main_window.radioButton_rgk.setChecked(bool(rgk))
         self.main_window.radioButton_fri.setChecked(bool(fri))
         #self.main_window.radioButton_ppp.setChecked(bool(ppp))
-        #self.main_window.radioButton_safe.setChecked(bool(safe))
-        #self.main_window.radioButton_d_sh.setChecked(bool(d_sh))
-        #self.main_window.radioButton_d_cab.setChecked(bool(d_cab))
-        #self.main_window.radioButton_light.setChecked(bool(light)
-        #self.main_window.radioButton_rez1.setChecked(bool(rez1))
+        self.main_window.radioButton_120.setChecked(bool(safe))
+        self.main_window.radioButton_130.setChecked(bool(d_sh))
+        self.main_window.radioButton_140.setChecked(bool(d_cab))
+        self.main_window.radioButton_light.setChecked(bool(light))
+        self.main_window.radioButton_rez1.setChecked(bool(rez1))
 
 
     def read_raspb(self):
@@ -348,11 +350,13 @@ class MainApp(QtWidgets.QMainWindow):
         data1 = bus.read_byte(adr_1)
         data2 = bus.read_byte(adr_2)
         data3 = bus.read_byte(adr_3)
-        print(data1, ' ', data2, ' ', data3, ' \n')
+        #print(data1, ' ', data2, ' ', data3, ' \n')
+
         msgs = [{'topic': "/orange/data1", 'payload': data1}, ("/orange/data2", data2, 0, False),
                 ("/orange/data3", data3, 0, False)]
         publish.multiple(msgs, hostname="mqtt.eclipseprojects.io")
         time.sleep(1)
+        return data1, data2, data3
 
 # printing result
 #print("Extracted Rows : " + str(res))
