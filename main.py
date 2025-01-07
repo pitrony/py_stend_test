@@ -138,9 +138,9 @@ class MainApp(QtWidgets.QMainWindow):
     def init_timer(self): #timer
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.save_alarms_to_file)
-
+        self.timer.timeout.connect(self.read_raspb)
         #self.timer = QtCore.QTimer(self)
-        self.timer.timeout.connect(lambda: self.update_main_window(data1, data2, alarms))
+        self.timer.timeout.connect(lambda: self.update_main_window(data1, data2, data3, alarms))
         #self.timer.timeout.connect(self.update_main_window(data1, data2, alarms))
         #self.timer.start(5000)  # 500 milliseconds = 0.5 seconds
     def list_adding(self, alarms):
@@ -157,7 +157,8 @@ class MainApp(QtWidgets.QMainWindow):
         self.config_window.hide()
         self.show()
         if(self.main_window.pushButton_start.isChecked()):
-            self.update_main_window(data1, data2, alarms)
+            #data1, data2, data3 = self.read_raspb()
+            self.update_main_window(data1, data2, data3, alarms)
 
 
     def save_settings(self):
@@ -230,17 +231,14 @@ class MainApp(QtWidgets.QMainWindow):
 
 
 
-    def update_main_window(self, data1, data2, alarms):
+    def update_main_window(self, data1, data2, data3, alarms):
         # Decode data1 for speed and PTC
-        #self.read_raspb()
-
         speed = data1 & 0b111
         ru1= (data1 >> 3) & 0b1
         ru2 = (data1 >> 4) & 0b1
         krc= (data1 >> 5) & 0b1
         frn= (data1 >> 6) & 0b1
         ptc  = (data1 >> 7) & 0b1
-
         # Update main window checkboxes
         self.main_window.radioButton_ptc.setChecked(bool(ptc))
         self.main_window.radioButton_frn.setChecked(bool(frn))
@@ -333,21 +331,29 @@ class MainApp(QtWidgets.QMainWindow):
         d_cab = (data3 >> 5) & 0b1
         light = (data3 >> 6) & 0b1
         rez1 = (data3 >> 7) & 0b1
+        self.main_window.radioButton_rgk.setChecked(bool(rgk))
+        self.main_window.radioButton_fri.setChecked(bool(fri))
+        #self.main_window.radioButton_ppp.setChecked(bool(ppp))
+        #self.main_window.radioButton_safe.setChecked(bool(safe))
+        #self.main_window.radioButton_d_sh.setChecked(bool(d_sh))
+        #self.main_window.radioButton_d_cab.setChecked(bool(d_cab))
+        #self.main_window.radioButton_light.setChecked(bool(light)
+        #self.main_window.radioButton_rez1.setChecked(bool(rez1))
 
-#res = [sub for sub in test_list if any(ele for ele in sub)]
+
     def read_raspb(self):
         bus.write_byte(adr_2, 0xFF)
         bus.write_byte(adr_1, 0xFF)
         bus.write_byte(adr_3, 0xFF)
-        while (i<10):
-            data1 = bus.read_binary(adr_1)
-            data2 = bus.read_binary(adr_2)
-            data3 = bus.read_binary(adr_3)
-            msgs = [{'topic': "/orange/data1", 'payload': data1}, ("/orange/data2", data2, 0, False), ("/orange/data3", data3, 0, False)]
-            publish.multiple(msgs, hostname="mqtt.eclipseprojects.io")
-            time.sleep(1)
-            i = i+1
-        i = 0
+        data1 = bus.read_byte(adr_1)
+        data2 = bus.read_byte(adr_2)
+        data3 = bus.read_byte(adr_3)
+        print(data1, ' ', data2, ' ', data3, ' \n')
+        msgs = [{'topic': "/orange/data1", 'payload': data1}, ("/orange/data2", data2, 0, False),
+                ("/orange/data3", data3, 0, False)]
+        publish.multiple(msgs, hostname="mqtt.eclipseprojects.io")
+        time.sleep(1)
+
 # printing result
 #print("Extracted Rows : " + str(res))
 
