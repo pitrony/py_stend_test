@@ -191,6 +191,18 @@ class Ui_Form_conf_speed(object):
         self.pushButton_cancel.setStyleSheet("background: rgb(255, 255, 127);\n"
 "border: 1px solid white")
         self.pushButton_cancel.setObjectName("pushButton_cancel")
+        self.label_fls = QtWidgets.QLabel(Form_conf_speed)
+        self.label_fls.setGeometry(QtCore.QRect(650, 40, 58, 16))
+        self.label_fls.setObjectName("label_fls")
+        self.label_speed = QtWidgets.QLabel(Form_conf_speed)
+        self.label_speed.setGeometry(QtCore.QRect(650, 80, 58, 16))
+        self.label_speed.setObjectName("label_speed")
+        self.lineEdit_fls = QtWidgets.QLineEdit(Form_conf_speed)
+        self.lineEdit_fls.setGeometry(QtCore.QRect(730, 30, 41, 28))
+        self.lineEdit_fls.setObjectName("lineEdit_fls")
+        self.lineEdit_2 = QtWidgets.QLineEdit(Form_conf_speed)
+        self.lineEdit_2.setGeometry(QtCore.QRect(730, 70, 41, 28))
+        self.lineEdit_2.setObjectName("lineEdit_2")
 
         self.retranslateUi(Form_conf_speed)
         self.pushButton_cancel.clicked.connect(Form_conf_speed.close) # type: ignore
@@ -238,3 +250,5 @@ class Ui_Form_conf_speed(object):
         self.radioButton_ry_read.setText(_translate("Form_conf_speed", " RY"))
         self.pushButtonOk.setText(_translate("Form_conf_speed", "save"))
         self.pushButton_cancel.setText(_translate("Form_conf_speed", "cancel"))
+        self.label_fls.setText(_translate("Form_conf_speed", "Floors"))
+        self.label_speed.setText(_translate("Form_conf_speed", "Speed"))
